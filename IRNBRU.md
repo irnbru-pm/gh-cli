@@ -55,3 +55,8 @@ and go test ./... passed. make lint reports four inherited unused functions
 in internal/config/refreshable.go (refreshableFromConfig, optionalSeconds,
 optionalTimestamp and isKeyNotFound). That file is unchanged from the AV source
 pin. Resolve these in a separately reviewed maintenance change before release.
+
+First-release review (November 11, 2026): removed the four unreachable plaintext
+refreshable-config read helpers. The active credential resolution path is
+unchanged. go fix ./internal/config, focused config/keyring tests, go test ./...
+and make lint pass. Upstream remains v2.103.3; no new upstream delta is present.

@@ -223,63 +223,6 @@ func (c *AuthConfig) refreshableForUser(hostname, username string) (gh.Credentia
 	return gh.Credential{}, true, err
 }
 
-func (c *AuthConfig) refreshableFromConfig(path []string) (gh.Credential, error) {
-	var record refreshableTokenRecord
-	var err error
-	if record.AccessToken, err = c.cfg.Get(append(path, "access_token")); err != nil {
-		return gh.Credential{}, err
-	}
-	if record.RefreshToken, err = c.cfg.Get(append(path, "refresh_token")); err != nil {
-		return gh.Credential{}, err
-	}
-	if record.ExpiresIn, err = c.optionalSeconds(append(path, "expires_in")); err != nil {
-		return gh.Credential{}, err
-	}
-	if record.ExpiresAt, err = c.optionalTimestamp(append(path, "expires_at")); err != nil {
-		return gh.Credential{}, err
-	}
-	if record.RefreshTokenExpiresIn, err = c.optionalSeconds(append(path, "refresh_token_expires_in")); err != nil {
-		return gh.Credential{}, err
-	}
-	if record.RefreshTokenExpiresAt, err = c.optionalTimestamp(append(path, "refresh_token_expires_at")); err != nil {
-		return gh.Credential{}, err
-	}
-	credential := record.credential(gh.TokenSourceRefreshableOAuthToken)
-	return credential, validateRefreshableCredential(credential)
-}
-
-// optionalSeconds reads a raw lifetime in seconds (an ExpiresIn field) from config, returning 0 when the key is absent
-// so a credential without the value is still valid.
-func (c *AuthConfig) optionalSeconds(path []string) (int, error) {
-	value, err := c.cfg.Get(path)
-	if isKeyNotFound(err) {
-		return 0, nil
-	}
-	if err != nil {
-		return 0, err
-	}
-	seconds, err := strconv.Atoi(value)
-	if err != nil {
-		return 0, errors.New("invalid refreshable credential expiration seconds")
-	}
-	return seconds, nil
-}
-
-func (c *AuthConfig) optionalTimestamp(path []string) (*time.Time, error) {
-	value, err := c.cfg.Get(path)
-	if isKeyNotFound(err) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	timestamp, err := time.Parse(time.RFC3339Nano, value)
-	if err != nil {
-		return nil, errors.New("invalid refreshable credential expiration timestamp")
-	}
-	return &timestamp, nil
-}
-
 func refreshableFromKeyring(hostname, username string) (gh.Credential, error) {
 	data, err := keyring.Get(refreshableServiceName(hostname), username)
 	if err != nil {
@@ -583,9 +526,4 @@ func refreshableServiceName(hostname string) string {
 	// The "refreshable" marker is prefixed with an underscore, which is not a valid hostname character under the LDH
 	// rule, so the segment can never collide with the plain token service of a host literally named "refreshable".
 	return "gh:_refreshable:" + hostname
-}
-
-func isKeyNotFound(err error) bool {
-	var keyNotFound *ghConfig.KeyNotFoundError
-	return errors.As(err, &keyNotFound)
 }
