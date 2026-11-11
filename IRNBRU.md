@@ -13,7 +13,7 @@ release is transferred or changed.
 - The inherited v2.103.3 tag names that patched AV commit, not the upstream one.
   IrnBru releases use distinct names, starting with v2.103.3-irnbru.1.
 - The irnbru branch commits the existing AV5 adaptation. It retains the
-  com.automicvault.av5.approval endpoint and authenticates the exact helper
+  dev.mxcl.irnbru.approval endpoint and authenticates the exact helper
   signing identity. These identifiers are compatibility boundaries.
 
 ## Patch inventory
