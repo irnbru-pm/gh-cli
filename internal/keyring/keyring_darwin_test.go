@@ -21,7 +21,7 @@ func TestTokenRequestDetail(t *testing.T) {
 
 func TestApprovalServiceSigningRequirementPinsTeamAndIdentifier(t *testing.T) {
 	require.Contains(t, approvalServiceSigningRequirement, `certificate leaf[subject.OU] = ZU76A67LGU`)
-	require.Contains(t, approvalServiceSigningRequirement, `identifier "com.automicvault"`)
+	require.Contains(t, approvalServiceSigningRequirement, `identifier "com.automicvault.av5.helper"`)
 	require.NotContains(t, approvalServiceSigningRequirement, "menu-helper")
 }
 
@@ -43,4 +43,9 @@ func TestApprovalServiceUnavailableMessage(t *testing.T) {
 	require.Equal(t,
 		"Automic Vault approval service is not running; open the menu bar app",
 		approvalServiceUnavailableMessage(false))
+}
+
+func TestAV5ServiceIsolation(t *testing.T) {
+	require.Equal(t, "com.automicvault.av5.approval", approvalService)
+	require.NotContains(t, approvalService, "av2")
 }

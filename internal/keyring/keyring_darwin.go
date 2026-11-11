@@ -44,8 +44,8 @@ import (
 	"unsafe"
 )
 
-const approvalService = "com.automicvault.av2.approval"
-const approvalServiceSigningRequirement = `anchor apple generic and certificate leaf[subject.OU] = ZU76A67LGU and identifier "com.automicvault"`
+const approvalService = "com.automicvault.av5.approval"
+const approvalServiceSigningRequirement = `anchor apple generic and certificate leaf[subject.OU] = ZU76A67LGU and identifier "com.automicvault.av5.helper"`
 
 const humanApprovalRequiredEvent = "human-approval-required"
 const humanApprovalRequiredNotice = "automic vault: human approval required\n"
