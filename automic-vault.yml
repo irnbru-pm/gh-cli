@@ -19,6 +19,6 @@ justification:
     same-user processes can retrieve them with `/usr/bin/security`, and
     exposes `gh auth token` as Secret Disclosure.
 
-    This Isotope routes token reads through Automic Vault's authenticated XPC
+    This Isotope routes token reads through IrnBru's authenticated XPC
     service, which applies policy or requests Approval for each Secret Use and
     records its Authorization Decision in Authorization History.

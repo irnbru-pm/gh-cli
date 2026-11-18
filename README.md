@@ -1,18 +1,11 @@
-# Automic Vault Fork Notes
+# IrnBru Fork Notes
 
-This repository is the Automic Vault fork of GitHub CLI.
+This repository supplies the IrnBru Isotope of GitHub CLI, derived from the
+Automic Vault fork. See [IRNBRU.md](IRNBRU.md) for source provenance and release rules.
 
-Automic Vault is a macOS-first secret and execution control system that
-keeps sensitive credentials behind explicit human approval in the Automic
-Vault GUI app instead of exposing them directly to terminal tools.
-
-This fork currently adds the following behavior on top of upstream `cli/cli`:
-
-- On-demand token retrieval through the Automic Vault GUI helper over XPC
-  instead of direct `gh` Keychain reads.
-- Request metadata for token reads so Automic Vault can show the human what
-  `gh` is asking for before releasing a stored token.
-- Compatibility with Automic Vault's `gh` detectors and hardener.
+The Isotope retrieves credentials through IrnBru's authenticated XPC helper
+instead of reading them directly from the Keychain. Requests include command
+and working-directory context so IrnBru can apply policy or request approval.
 
 The remainder of this README is the original upstream GitHub CLI README.
 

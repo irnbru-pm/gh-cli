@@ -48,7 +48,7 @@ const approvalService = "dev.mxcl.irnbru.approval"
 const approvalServiceSigningRequirement = `anchor apple generic and certificate leaf[subject.OU] = ZU76A67LGU and identifier "dev.mxcl.irnbru.helper"`
 
 const humanApprovalRequiredEvent = "human-approval-required"
-const humanApprovalRequiredNotice = "automic vault: human approval required\n"
+const humanApprovalRequiredNotice = "irnbru: human approval required\n"
 
 func approvalEventNotice(event string) string {
 	if event == humanApprovalRequiredEvent {
@@ -60,9 +60,9 @@ func approvalEventNotice(event string) string {
 func approvalDecisionNotice(decision string) string {
 	switch decision {
 	case "approved":
-		return "automic vault: approved\n"
+		return "irnbru: approved\n"
 	case "denied":
-		return "automic vault: denied\n"
+		return "irnbru: denied\n"
 	default:
 		return ""
 	}
@@ -70,9 +70,9 @@ func approvalDecisionNotice(decision string) string {
 
 func approvalServiceUnavailableMessage(sandboxDenied bool) string {
 	if sandboxDenied {
-		return "Automic Vault approval service is blocked by this process's sandbox; retry with elevated permissions"
+		return "IrnBru approval service is blocked by this process's sandbox; retry with elevated permissions"
 	}
-	return "Automic Vault approval service is not running; open the menu bar app"
+	return "IrnBru approval service is not running; open the menu bar app"
 }
 
 //export av_approval_event
@@ -86,7 +86,7 @@ func set(service, user, secret string) error {
 	key := vaultKey(service, user)
 	message := C.xpc_dictionary_create_empty()
 	if unsafe.Pointer(message) == nil {
-		return errors.New("failed to create Automic Vault XPC message")
+		return errors.New("failed to create IrnBru XPC message")
 	}
 	defer C.xpc_release(message)
 
@@ -111,7 +111,7 @@ func get(service, user string) (string, error) {
 	key := vaultKey(service, user)
 	message := C.xpc_dictionary_create_empty()
 	if unsafe.Pointer(message) == nil {
-		return "", errors.New("failed to create Automic Vault XPC message")
+		return "", errors.New("failed to create IrnBru XPC message")
 	}
 	defer C.xpc_release(message)
 
@@ -130,7 +130,7 @@ func get(service, user string) (string, error) {
 		// Some upstream token lookups discard errors. Keep Vault failures visible
 		// without changing missing-token fallback or writing into credential stdout.
 		if !errors.Is(err, ErrNotFound) {
-			_, _ = fmt.Fprintf(os.Stderr, "automic vault: %s\n", err)
+			_, _ = fmt.Fprintf(os.Stderr, "irnbru: %s\n", err)
 		}
 		return "", err
 	}
@@ -154,7 +154,7 @@ func deleteSecret(service, user string) error {
 	key := vaultKey(service, user)
 	message := C.xpc_dictionary_create_empty()
 	if unsafe.Pointer(message) == nil {
-		return errors.New("failed to create Automic Vault XPC message")
+		return errors.New("failed to create IrnBru XPC message")
 	}
 	defer C.xpc_release(message)
 
@@ -214,7 +214,7 @@ func send(message C.xpc_object_t) (C.xpc_object_t, error) {
 	// the physical directory for Project Value selection.
 	cwd, err := syscall.Getwd()
 	if err != nil {
-		return nil, fmt.Errorf("failed to determine Automic Vault request working directory: %w", err)
+		return nil, fmt.Errorf("failed to determine IrnBru request working directory: %w", err)
 	}
 	if err := setString(message, "cwd", cwd); err != nil {
 		return nil, err
@@ -224,7 +224,7 @@ func send(message C.xpc_object_t) (C.xpc_object_t, error) {
 	defer C.free(unsafe.Pointer(service))
 	connection := C.xpc_connection_create_mach_service(service, nil, 0)
 	if unsafe.Pointer(connection) == nil {
-		return nil, errors.New("failed to create Automic Vault XPC connection")
+		return nil, errors.New("failed to create IrnBru XPC connection")
 	}
 	defer C.xpc_release(C.xpc_object_t(unsafe.Pointer(connection)))
 	defer C.xpc_connection_cancel(connection)
@@ -232,7 +232,7 @@ func send(message C.xpc_object_t) (C.xpc_object_t, error) {
 	requirement := C.CString(approvalServiceSigningRequirement)
 	defer C.free(unsafe.Pointer(requirement))
 	if C.xpc_connection_set_peer_code_signing_requirement(connection, requirement) != 0 {
-		return nil, errors.New("failed to configure Automic Vault XPC signing requirement")
+		return nil, errors.New("failed to configure IrnBru XPC signing requirement")
 	}
 
 	C.av_xpc_connection_set_event_handler(connection)
@@ -240,7 +240,7 @@ func send(message C.xpc_object_t) (C.xpc_object_t, error) {
 
 	reply := C.xpc_connection_send_message_with_reply_sync(connection, message)
 	if unsafe.Pointer(reply) == nil {
-		return nil, errors.New("Automic Vault approval did not reply")
+		return nil, errors.New("IrnBru approval did not reply")
 	}
 	if C.xpc_get_type(reply) == C.av_xpc_type_error() {
 		if C.av_xpc_connection_invalid(reply) != 0 {
@@ -248,7 +248,7 @@ func send(message C.xpc_object_t) (C.xpc_object_t, error) {
 			return nil, errors.New(approvalServiceUnavailableMessage(C.av_sandbox_denies_mach_lookup(service) != 0))
 		}
 		desc := C.av_xpc_error_description(reply)
-		err := "Automic Vault XPC connection failed"
+		err := "IrnBru XPC connection failed"
 		if desc != nil {
 			err = C.GoString(desc)
 		}
@@ -299,7 +299,7 @@ func setArray(dict C.xpc_object_t, key string, values []string) error {
 	defer C.free(unsafe.Pointer(keyCString))
 	array := C.xpc_array_create_empty()
 	if unsafe.Pointer(array) == nil {
-		return errors.New("failed to create Automic Vault XPC array")
+		return errors.New("failed to create IrnBru XPC array")
 	}
 	defer C.xpc_release(array)
 	for _, value := range values {
@@ -310,7 +310,7 @@ func setArray(dict C.xpc_object_t, key string, values []string) error {
 		item := C.xpc_string_create(valueCString)
 		C.free(unsafe.Pointer(valueCString))
 		if unsafe.Pointer(item) == nil {
-			return errors.New("failed to create Automic Vault XPC string")
+			return errors.New("failed to create IrnBru XPC string")
 		}
 		C.xpc_array_append_value(array, item)
 		C.xpc_release(item)

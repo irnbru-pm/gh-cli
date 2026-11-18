@@ -56,7 +56,7 @@ func TestVaultRequestErrorNotice(t *testing.T) {
     } {
         for _, response := range []string{
             "Stored Secrets are unavailable from Keychain. Unlock the Mac and retry. (-25308)",
-            "Secret GH_TOKEN_GITHUB_COM is unavailable from Keychain. Unlock the Mac and retry. You can allow Automic Vault to access the needed Secrets while locked: enable Available While Locked for them in the Automic Vault app. Authorization is still required. Login and credential changes may still require unlocking. (-25308)",
+            "Secret GH_TOKEN_GITHUB_COM is unavailable from Keychain. Unlock the Mac and retry. You can allow IrnBru to access the needed Secrets while locked: enable Available While Locked for them in the IrnBru app. Authorization is still required. Login and credential changes may still require unlocking. (-25308)",
             "failed to load selected value for GH_TOKEN_GITHUB_COM: -25308",
             "not found",
             "failed to load secret GH_TOKEN_GITHUB_COM: -25300",
@@ -88,7 +88,7 @@ func TestVaultRequestErrorNotice(t *testing.T) {
                     if expected == "" { expected = operation.fallback }
                     require.EqualError(t, err, expected)
                     if operation.name == "read" {
-                        require.Equal(t, "automic vault: "+expected+"\n", string(output))
+                        require.Equal(t, "irnbru: "+expected+"\n", string(output))
                     } else {
                         require.Empty(t, output) // Upstream can intentionally ignore cleanup errors.
                     }
@@ -143,10 +143,10 @@ func TestVaultRequestMissingWorkingDirectory(t *testing.T) {
     original := vaultTestGetwd
     t.Cleanup(func() { vaultTestGetwd = original })
     vaultTestGetwd = func() (string, error) { return "", os.ErrNotExist }
-    require.ErrorContains(t, set("gh:github.com", "mona", "test-token"), "failed to determine Automic Vault request working directory")
-    require.ErrorContains(t, deleteSecret("gh:github.com", "mona"), "failed to determine Automic Vault request working directory")
+    require.ErrorContains(t, set("gh:github.com", "mona", "test-token"), "failed to determine IrnBru request working directory")
+    require.ErrorContains(t, deleteSecret("gh:github.com", "mona"), "failed to determine IrnBru request working directory")
     _, err := get("gh:github.com", "mona")
-    require.ErrorContains(t, err, "failed to determine Automic Vault request working directory")
+    require.ErrorContains(t, err, "failed to determine IrnBru request working directory")
 }
 '''
 with tempfile.TemporaryDirectory(prefix="gh-vault-test-") as directory:

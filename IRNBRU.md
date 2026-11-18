@@ -25,8 +25,8 @@ approval notifications, custom Vault Git remote recognition (git, ghrepo,
 internal/gh), version branding, related tests, and fork documentation/CI.
 
 Inspect the complete delta against the upstream SHA, not the inherited tag.
-Custom remote handling, branding and inherited automation need separate review
-before the first IrnBru release; this source bootstrap preserves working behavior.
+Version and approval messages use IrnBru branding. Custom Vault remotes remain
+compatible with the inherited syntax.
 
 Keep patches minimal. Installation grants no credential authority. Signing
 establishes identity, not trustworthiness. A credential-consuming Target controls
@@ -39,7 +39,7 @@ script/test-vault-keyring.py transport tests, go test ./..., and make lint.
 Live acceptance tests require separately authorized disposable resources.
 
 Inherited Actions stay disabled until reviewed. Do not add signing credentials
-to pull-request workflows. No IrnBru binary release exists yet. Release metadata
+to pull-request workflows. Release metadata
 must record both source commits, upstream version and Isotope revision,
 toolchains, architecture, minimum OS, protocol compatibility, final signed
 artifact digest/size and expected signing identity. Never replace released bytes.

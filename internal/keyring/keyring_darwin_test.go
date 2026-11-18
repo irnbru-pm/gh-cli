@@ -26,22 +26,22 @@ func TestApprovalServiceSigningRequirementPinsTeamAndIdentifier(t *testing.T) {
 }
 
 func TestApprovalEventNotice(t *testing.T) {
-	require.Equal(t, "automic vault: human approval required\n", approvalEventNotice("human-approval-required"))
+	require.Equal(t, "irnbru: human approval required\n", approvalEventNotice("human-approval-required"))
 	require.Empty(t, approvalEventNotice("other-event"))
 }
 
 func TestApprovalDecisionNotice(t *testing.T) {
-	require.Equal(t, "automic vault: approved\n", approvalDecisionNotice("approved"))
-	require.Equal(t, "automic vault: denied\n", approvalDecisionNotice("denied"))
+	require.Equal(t, "irnbru: approved\n", approvalDecisionNotice("approved"))
+	require.Equal(t, "irnbru: denied\n", approvalDecisionNotice("denied"))
 	require.Empty(t, approvalDecisionNotice("other-decision"))
 }
 
 func TestApprovalServiceUnavailableMessage(t *testing.T) {
 	require.Equal(t,
-		"Automic Vault approval service is blocked by this process's sandbox; retry with elevated permissions",
+		"IrnBru approval service is blocked by this process's sandbox; retry with elevated permissions",
 		approvalServiceUnavailableMessage(true))
 	require.Equal(t,
-		"Automic Vault approval service is not running; open the menu bar app",
+		"IrnBru approval service is not running; open the menu bar app",
 		approvalServiceUnavailableMessage(false))
 }
 
