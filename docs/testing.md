@@ -31,6 +31,15 @@ Report blocked checks honestly. These checks are not full CI parity; see
 [CI and live acceptance tests](#ci-and-live-acceptance-tests-are-different) below.
 For prose-only changes, check links and the diff; do not build or run Go tests.
 
+Workflow helper scripts have isolated tests using Node.js's built-in test runner.
+Run them with:
+
+```sh
+node --test .github/scripts/*.test.cjs
+```
+
+These tests stub GitHub calls and do not dispatch workflows or modify live resources.
+
 ## Choose the behavioral seam
 
 Command suites generally separate constructor tests from run-function tests.
@@ -105,7 +114,7 @@ root and inspect the generated diff. Broaden only for actual dependent mocks.
 `make lint` runs `golangci-lint run ./...`, not all CI checks.
 [Lint CI](../.github/workflows/lint.yml) also checks `go mod tidy -diff`,
 `go fix -diff ./...`, license generation, and vulnerabilities.
-[Go CI](../.github/workflows/go.yml) runs `go test -race -tags=integration ./...`
+[Go CI](../.github/workflows/go.yml) runs `go test -count=1 -race -tags=integration ./...`
 on Linux, Windows, and macOS, plus a separate attestation integration job with
 its own environment. Inspect the relevant workflow/setup before reproducing
 environment-dependent checks; an ordinary test run is not evidence of CI parity.

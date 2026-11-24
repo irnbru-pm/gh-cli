@@ -6,8 +6,8 @@ release is transferred or changed.
 
 ## Source provenance
 
-- Upstream: cli/cli v2.103.3,
-  63837fb778d6a39f02be0ce76ff89f2bc8d74bdc.
+- Upstream: cli/cli v2.105.0,
+  e1219499a578b69e3437adaa31cd60614e23c802.
 - Inherited integration: automic-vault/gh-cli,
   222f7840e0aae5c6d7945525cd26fb1aa8b6ec27.
 - The inherited v2.103.3 tag names that patched AV commit, not the upstream one.
@@ -59,4 +59,8 @@ pin. Resolve these in a separately reviewed maintenance change before release.
 First-release review (November 11, 2026): removed the four unreachable plaintext
 refreshable-config read helpers. The active credential resolution path is
 unchanged. go fix ./internal/config, focused config/keyring tests, go test ./...
-and make lint pass. Upstream remains v2.103.3; no new upstream delta is present.
+and make lint passed for v2.103.3.
+
+v2.105.0 review: the auth status merge retains both upstream HTTP diagnostics
+and IrnBru's credential-provider failure tests. The event commands use the
+shared authenticated HTTP client.
