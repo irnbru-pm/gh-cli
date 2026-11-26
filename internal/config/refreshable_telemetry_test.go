@@ -55,44 +55,36 @@ func TestRefreshTelemetry(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		secure      bool
 		lockErr     error
 		whileLock   func(t *testing.T)
 		refresher   func(t *testing.T) gh.TokenRefresher
 		wantOutcome string
 		wantLock    string
-		wantStorage string
 	}{
 		{
-			name:   "renewed by a peer while waiting for the lock",
-			secure: true,
+			name: "renewed by a peer while waiting for the lock",
 			whileLock: func(t *testing.T) {
 				setRefreshableKeyring(t, host, user, gh.Credential{Token: "peer-access", RefreshToken: "peer-refresh", ExpiresAt: &future})
 			},
 			refresher:   func(*testing.T) gh.TokenRefresher { return renewingRefresher() },
 			wantOutcome: "already_fresh",
 			wantLock:    "held",
-			wantStorage: "keyring",
 		},
 		{
 			name:        "refreshed",
 			refresher:   func(*testing.T) gh.TokenRefresher { return renewingRefresher() },
 			wantOutcome: "done",
 			wantLock:    "held",
-			wantStorage: "plaintext",
 		},
 		{
 			name:        "refreshed without the lock after a timeout",
-			secure:      true,
 			lockErr:     flock.ErrTimeout,
 			refresher:   func(*testing.T) gh.TokenRefresher { return renewingRefresher() },
 			wantOutcome: "done",
 			wantLock:    "timeout",
-			wantStorage: "keyring",
 		},
 		{
-			name:   "rejected and adopted the peer's credential",
-			secure: true,
+			name: "rejected and adopted the peer's credential",
 			refresher: func(t *testing.T) gh.TokenRefresher {
 				return rejectingRefresher(func() {
 					setRefreshableKeyring(t, host, user, gh.Credential{Token: "peer-access", RefreshToken: "peer-refresh", ExpiresAt: &future})
@@ -100,25 +92,24 @@ func TestRefreshTelemetry(t *testing.T) {
 			},
 			wantOutcome: "rejected_adopted",
 			wantLock:    "held",
-			wantStorage: "keyring",
 		},
 		{
 			name:        "rejected and removed",
 			refresher:   func(*testing.T) gh.TokenRefresher { return rejectingRefresher(nil) },
 			wantOutcome: "rejected_removed",
 			wantLock:    "held",
-			wantStorage: "plaintext",
 		},
 		{
 			name: "rejected but removal failed",
 			refresher: func(t *testing.T) gh.TokenRefresher {
 				return rejectingRefresher(func() {
-					require.NoError(t, os.Chmod(filepath.Join(os.Getenv("GH_CONFIG_DIR"), "hosts.yml"), 0400))
+					configFile := filepath.Join(os.Getenv("GH_CONFIG_DIR"), "config.yml")
+					require.NoError(t, os.Remove(configFile))
+					require.NoError(t, os.Mkdir(configFile, 0o700))
 				})
 			},
 			wantOutcome: "rejected_remove_failed",
 			wantLock:    "held",
-			wantStorage: "plaintext",
 		},
 		{
 			name:        "rejected and kept without the lock",
@@ -126,7 +117,6 @@ func TestRefreshTelemetry(t *testing.T) {
 			refresher:   func(*testing.T) gh.TokenRefresher { return rejectingRefresher(nil) },
 			wantOutcome: "rejected_kept",
 			wantLock:    "unavailable",
-			wantStorage: "plaintext",
 		},
 		{
 			name: "exchange failed",
@@ -139,7 +129,6 @@ func TestRefreshTelemetry(t *testing.T) {
 			},
 			wantOutcome: "exchange_failed",
 			wantLock:    "held",
-			wantStorage: "plaintext",
 		},
 		{
 			name:        "skipped because the lock file is inaccessible",
@@ -147,13 +136,12 @@ func TestRefreshTelemetry(t *testing.T) {
 			refresher:   func(*testing.T) gh.TokenRefresher { return renewingRefresher() },
 			wantOutcome: "skipped",
 			wantLock:    "inaccessible",
-			wantStorage: "plaintext",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			authCfg := newTestAuthConfig(t)
-			loginRefreshableWithExpiry(t, authCfg, host, user, "old-access", "old-refresh", time.Now().Add(-time.Hour), tt.secure)
+			loginRefreshableWithExpiry(t, authCfg, host, user, "old-access", "old-refresh", time.Now().Add(-time.Hour), true)
 			authCfg.acquireRefreshLock = func(ctx context.Context, path string) (func(), error) {
 				if tt.whileLock != nil {
 					tt.whileLock(t)
@@ -172,7 +160,7 @@ func TestRefreshTelemetry(t *testing.T) {
 			require.Equal(t, "auth_token_refresh", event.Type)
 			require.Equal(t, tt.wantOutcome, event.Dimensions["refresh_outcome"])
 			require.Equal(t, tt.wantLock, event.Dimensions["refresh_lock"])
-			require.Equal(t, tt.wantStorage, event.Dimensions["storage_type"])
+			require.Equal(t, "keyring", event.Dimensions["storage_type"])
 		})
 	}
 }

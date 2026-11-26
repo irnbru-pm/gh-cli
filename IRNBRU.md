@@ -6,8 +6,8 @@ release is transferred or changed.
 
 ## Source provenance
 
-- Upstream: cli/cli v2.105.0,
-  e1219499a578b69e3437adaa31cd60614e23c802.
+- Upstream: cli/cli v2.106.0,
+  529111a21612ff1e29dc45e567a157df24e0e243.
 - Inherited integration: automic-vault/gh-cli,
   222f7840e0aae5c6d7945525cd26fb1aa8b6ec27.
 - The inherited v2.103.3 tag names that patched AV commit, not the upstream one.
@@ -64,3 +64,8 @@ and make lint passed for v2.103.3.
 v2.105.0 review: the auth status merge retains both upstream HTTP diagnostics
 and IrnBru's credential-provider failure tests. The event commands use the
 shared authenticated HTTP client.
+
+v2.106.0 review: logout resolves the selected account through the managed
+keyring before attempting OAuth revocation. Use `gh auth logout --no-revoke`
+for local removal alone. Logout and refresh fixtures exercise the managed
+keyring, including recovery when a peer has already rotated the credential.
